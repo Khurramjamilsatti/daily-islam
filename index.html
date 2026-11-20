@@ -7,6 +7,65 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
   </script>
+  <script>
+    (function () {
+      var contexts = [];
+      var elements = [];
+      var NativeContext = window.AudioContext || window.webkitAudioContext;
+      if (NativeContext) {
+        var WrappedContext = function AudioContext() {
+          var ctx = Reflect.construct(NativeContext, arguments, NativeContext);
+          contexts.push(ctx);
+          return ctx;
+        };
+        WrappedContext.prototype = NativeContext.prototype;
+        Object.setPrototypeOf(WrappedContext, NativeContext);
+        window.AudioContext = WrappedContext;
+        if (window.webkitAudioContext) window.webkitAudioContext = WrappedContext;
+      }
+      var NativeAudio = window.Audio;
+      if (NativeAudio) {
+        var WrappedAudio = function Audio(src) {
+          var el = Reflect.construct(NativeAudio, arguments, NativeAudio);
+          elements.push(el);
+          return el;
+        };
+        WrappedAudio.prototype = NativeAudio.prototype;
+        Object.setPrototypeOf(WrappedAudio, NativeAudio);
+        window.Audio = WrappedAudio;
+      }
+      function stopPlayback() {
+        for (var i = 0; i < elements.length; i++) {
+          var el = elements[i];
+          try { el.pause(); } catch (e) {}
+          try { el.currentTime = 0; } catch (e) {}
+          try {
+            el.removeAttribute('src');
+            el.load();
+          } catch (e) {}
+        }
+        var nodes = document.querySelectorAll('audio, video');
+        for (var j = 0; j < nodes.length; j++) {
+          try { nodes[j].pause(); } catch (e) {}
+          try {
+            nodes[j].removeAttribute('src');
+            nodes[j].load();
+          } catch (e) {}
+        }
+        for (var k = 0; k < contexts.length; k++) {
+          try {
+            if (contexts[k].state !== 'closed') {
+              contexts[k].suspend();
+              contexts[k].close();
+            }
+          } catch (e) {}
+        }
+      }
+      window.__dailyIslamAudio = {contexts: contexts, elements: elements, stop: stopPlayback};
+      window.addEventListener('pagehide', stopPlayback);
+      window.addEventListener('beforeunload', stopPlayback);
+    })();
+  </script>
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
@@ -43,6 +102,6 @@
      crossorigin="anonymous"></script>
 </head>
 <body>
-  <script src="flutter_bootstrap.js?v=58" async></script>
+  <script src="flutter_bootstrap.js?v=60" async></script>
 </body>
 </html>
