@@ -97,10 +97,106 @@
   <link rel="amphtml" href="https://daily-islam.digital/amp/">
   <link rel="manifest" href="manifest.json">
   <meta name="google-adsense-account" content="ca-pub-5459212096047628">
+  <meta name="theme-color" content="#07261E">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5459212096047628"
      crossorigin="anonymous"></script>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #07261E;
+    }
+    flt-glass-pane, flt-scene-host, flutter-view {
+      background: #07261E;
+    }
+    #di-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background: #07261E;
+      color: #E8D5A3;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    #di-loader.di-hide {
+      opacity: 0;
+      transition: opacity .4s ease;
+      pointer-events: none;
+    }
+    .di-stage {
+      position: relative;
+      width: 168px;
+      height: 168px;
+    }
+    .di-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid rgba(198, 161, 91, 0.25);
+      border-top-color: #C6A15B;
+      animation: di-spin 1.1s linear infinite;
+    }
+    .di-lamp {
+      position: absolute;
+      left: 50%;
+      top: 18px;
+      width: 88px;
+      margin-left: -44px;
+      transform-origin: 50% 0;
+      animation: di-sway 2.6s ease-in-out infinite;
+    }
+    .di-name {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0.4px;
+    }
+    .di-line {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 1.5px;
+      color: #C6A15B;
+    }
+    @keyframes di-spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes di-sway {
+      0%, 100% { transform: rotate(-7deg); }
+      50% { transform: rotate(7deg); }
+    }
+  </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js?v=61" async></script>
+  <div id="di-loader" role="status" aria-live="polite" aria-label="Daily Islam is opening">
+    <div class="di-stage">
+      <div class="di-ring"></div>
+      <svg class="di-lamp" viewBox="0 0 120 160" aria-hidden="true">
+        <path fill="#E8B020" d="M58,8h4v40h-4z"/>
+        <path fill="#F0A020" d="M36,46h48v12h-48z"/>
+        <path fill="#F8D048" d="M60,52c-24,0 -40,22 -40,48c0,26 16,52 40,52c24,0 40,-26 40,-52c0,-26 -16,-48 -40,-48z"/>
+        <circle cx="60" cy="102" r="14" fill="#F8E6B0"/>
+      </svg>
+    </div>
+    <p class="di-name">Daily Islam</p>
+    <p class="di-line">Quran · Hadith · Prayer</p>
+  </div>
+  <script>
+    (function () {
+      var node = document.getElementById('di-loader');
+      function done() {
+        if (!node || node.dataset.done === '1') return;
+        node.dataset.done = '1';
+        node.classList.add('di-hide');
+        setTimeout(function () {
+          if (node.parentNode) node.parentNode.removeChild(node);
+        }, 420);
+      }
+      window.addEventListener('flutter-first-frame', done);
+    })();
+  </script>
+  <script src="flutter_bootstrap.js?v=62" async></script>
 </body>
 </html>
