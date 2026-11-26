@@ -11,17 +11,36 @@
     (function () {
       var contexts = [];
       var elements = [];
+      var shared = null;
       var NativeContext = window.AudioContext || window.webkitAudioContext;
+      function liveContext(args) {
+        if (!shared || shared.state === 'closed') {
+          shared = Reflect.construct(NativeContext, args, NativeContext);
+          contexts.push(shared);
+        }
+        if (shared.state === 'suspended') shared.resume();
+        return shared;
+      }
       if (NativeContext) {
         var WrappedContext = function AudioContext() {
-          var ctx = Reflect.construct(NativeContext, arguments, NativeContext);
-          contexts.push(ctx);
-          return ctx;
+          return liveContext(arguments);
         };
         WrappedContext.prototype = NativeContext.prototype;
         Object.setPrototypeOf(WrappedContext, NativeContext);
         window.AudioContext = WrappedContext;
         if (window.webkitAudioContext) window.webkitAudioContext = WrappedContext;
+      }
+      function resumeAudio() {
+        if (shared && shared.state === 'suspended') shared.resume();
+      }
+      window.addEventListener('pointerdown', resumeAudio, true);
+      window.addEventListener('keydown', resumeAudio, true);
+      if (window.HTMLAudioElement) {
+        var nativePlay = HTMLAudioElement.prototype.play;
+        HTMLAudioElement.prototype.play = function () {
+          resumeAudio();
+          return nativePlay.apply(this, arguments);
+        };
       }
       var NativeAudio = window.Audio;
       if (NativeAudio) {
@@ -197,6 +216,6 @@
       window.addEventListener('flutter-first-frame', done);
     })();
   </script>
-  <script src="flutter_bootstrap.js?v=65" async></script>
+  <script src="flutter_bootstrap.js?v=76" async></script>
 </body>
 </html>
